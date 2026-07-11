@@ -1,4 +1,4 @@
-# Bias Analysis Framework
+# Bias Analysis Framework for Computational Pathology
 
 A configuration-driven framework for evaluating bias across computational pathology workflows, from clinical cohort distributions and foundation-model embeddings to trained model predictions, subgroup performance, and bias propagation.
 
