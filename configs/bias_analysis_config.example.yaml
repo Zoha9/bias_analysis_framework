@@ -1,0 +1,405 @@
+project:
+  name: "CRC bias analysis"
+  output_root: "/path/to/results"
+  random_seed: 42
+
+stamp:
+  required: true
+  stamp_repo_url: "https://github.com/KatherLab/STAMP"
+
+  # Existing STAMP YAML file used as the base template.
+  stamp_config_template: "/path/to/stamp/config.yaml"
+
+  # A STAMP YAML template containing a valid crossval section.
+  crossval_config_template: "/path/to/stamp/crossval_config.yaml"
+
+  # STAMP YAML containing a valid deployment section.
+  deployment_config_template: "/path/to/stamp/deployment_config.yaml"
+
+  # Use "stamp" when STAMP is installed in the active environment.
+  # Another possible value is "uv run stamp" when running inside
+  # a STAMP repository managed using uv.
+  command: "stamp"
+
+  # Optional working directory used when invoking STAMP.
+  # Leave unset if "stamp" is available globally in the environment.
+  working_directory: null
+
+  # Optional Hugging Face token file. Required only for extractors
+  # whose model weights require Hugging Face authentication.
+  hf_token_file: "/path/to/.huggingface/token"
+
+  # STAMP/model cache paths.
+  cache_dir: "/path/to/cache/stamp"
+  hf_home: "/path/to/cache/huggingface"
+  huggingface_hub_cache: "/path/to/cache/huggingface/hub"
+  xdg_cache_home: "/path/to/cache"
+  torch_home: "/path/to/cache/torch"
+
+  # Default values used unless overridden by the workflow section.
+  default_slide_mpp: 1.14
+  max_workers: 8
+
+  # Model-specific worker settings.
+  extractor_max_workers:
+    virchow2: 2
+    uni: 8
+    conch: 8
+
+  # Optional environment variables passed to STAMP.
+  environment:
+    PYTORCH_CUDA_ALLOC_CONF: "max_split_size_mb:64"
+
+
+data:
+  clinical_table: "/path/to/clinical_table.xlsx"
+  slide_table: "/path/to/slide_table.csv"
+  wsi_root: "/path/to/wsi_folder"
+  feature_root: "/path/to/features"
+
+  patient_column: "PATIENT"
+  slide_filename_column: "FILENAME"
+
+cohort:
+  organ: "CRC"
+  dataset: "TCGA"
+
+targets:
+  - name: "MSI_Status"
+    positive_label: "MSI-H"
+    negative_label: "MSS"
+
+  - name: "KRAS"
+    positive_label: "MUT"
+    negative_label: "WT"
+
+  # Multiclass example:
+  # - name: "BRCA_Subtype_PAM50"
+  #   labels:
+  #     - "LumA"
+  #     - "LumB"
+  #     - "Basal"
+  #     - "Her2"
+  #     - "Normal"
+
+bias_factors:
+  - name: "Race"
+    column: "Race Category"
+    subgroups:
+      - "WHITE"
+      - "BLACK OR AFRICAN AMERICAN"
+      - "ASIAN"
+
+  - name: "Gender"
+    column: "Gender"
+    subgroups:
+      - "Male"
+      - "Female"
+
+  - name: "Age Group"
+    column: "Age_Group"
+    subgroups:
+      - "<50"
+      - "50-64"
+      - "65+"
+  
+  - name: "Tissue Source Site"
+    column: "Tissue Source Site"
+    minimum_count: 10
+    other_label: "Other(<10)"
+
+models:
+  - name: "UNI"
+    extractor: "uni"
+
+  - name: "CONCH"
+    extractor: "conch"
+
+  - name: "Virchow2"
+    extractor: "virchow2"
+
+workflows:
+  clinical_distribution_analysis:
+    run: true
+    compute_metrics: true
+    compute_counts: true
+    make_heatmaps: true
+    make_metric_heatmaps: true
+
+  stamp_feature_extraction:
+    run: true
+
+    # First test with false. Set true only when generated configs
+    # have been inspected and STAMP is ready.
+    execute: false
+
+    # Skip a model when an extractor output directory already exists.
+    skip_existing: true
+
+    # Stop after the first failed extractor.
+    continue_on_error: false
+
+    # Keep false to preserve the old STAMP output structure, where STAMP
+    # creates extractor-specific subdirectories inside one cohort folder.
+    separate_extractor_directories: false
+
+    default_slide_mpp: 1.14
+    max_workers: 8
+
+    extractor_max_workers:
+      virchow2: 2
+      uni: 8
+      conch: 8
+  
+
+  feature_embedding_analysis:
+    run: true
+    continue_on_error: false
+
+    slide_aggregation: "mean"
+    patient_aggregation: "mean"
+    h5_dataset_name: null
+
+    projection_preprocessing: "l2_normalize"
+
+    projections:
+      pca: true
+      tsne: true
+      umap: true
+
+    tsne_perplexity: 30
+    tsne_max_iter: 1000
+    umap_n_neighbors: 30
+    umap_min_dist: 0.1
+
+    robustness_k: 50
+    knn_k: 5
+    knn_folds: 5
+    minimum_group_size_for_metrics: 2
+
+    factor_minimum_counts:
+      Tissue Source Site: 10
+      Tissue Source Grouped: 10
+      Tissue Source Grouped v2: 10
+
+    metrics:
+      robustness_index: true
+      knn_accuracy: true
+      clustering_scores: true
+
+    visualizations:
+      global_target_plots: true
+      global_bias_plots: true
+      per_target_bias_plots: true
+      target_panel_grid: true
+      bias_panel_grid: true
+      cross_model_panels: true
+
+      point_size: 9
+      point_alpha: 0.78
+      panel_point_size: 5
+      panel_point_alpha: 0.78
+
+      single_plot_figsize:
+        - 7.5
+        - 5.5
+
+      panel_columns: 3
+      panel_cell_width: 4.0
+      panel_cell_height: 3.6
+      cross_model_columns: 3
+
+      legend_ncol: 1
+      row_legend_ncol: 5
+
+      zoom_percentiles:
+        - 1
+        - 99
+
+      max_bias_factors_per_panel: 2
+      bias_panel_target: null
+
+      bias_panel_selection:
+        uni:
+          - Gender
+          - Race
+        conch:
+          - Tissue Source Site
+        virchow2:
+          - Race
+          - Age Group
+
+  
+  stamp_crossval_training:
+    run: true
+    execute: false
+
+    n_splits: 5
+
+    label_sources:
+      - targets
+      - bias_factors
+
+    # Optional explicit labels.
+    # When this is not null, it replaces label_sources.
+    labels: null
+
+    # Example:
+    #
+    # labels:
+    #   - name: "MSI_Status"
+    #     type: "target"
+    #
+    #   - name: "Gender"
+    #     type: "bias_factor"
+
+    skip_existing: true
+    continue_on_error: false
+
+    crossval_overrides: {}
+
+  
+  regular_model_prediction_analysis:
+    run: true
+
+    # First verify generated configs with false.
+    execute: false
+
+    skip_existing: true
+    continue_on_error: false
+
+    # Stop when a model × label has no trained checkpoints.
+    require_all_checkpoints: true
+
+    checkpoint_filename: "model.ckpt"
+
+    # Null means deploy all available cross-validation splits.
+    # Example: [0] for a quick single-split test.
+    splits: null
+
+    # Null means use the same automatic selection as Step 4.
+    # Targets and bias-factor columns are both included by default.
+    labels: null
+
+    # Explicit label example:
+    #
+    # labels:
+    #   - name: "MSI_Status"
+    #     type: "target"
+    #
+    #   - name: "Race"
+    #     type: "bias_factor"
+
+    # Optional direct path to trained crossval results.
+    # This is useful for legacy results or cross-dataset deployment.
+    crossval_results_root: null
+
+    # Used when crossval_results_root is null.
+    # It allows models trained on TCGA to be deployed on CPTAC.
+    training_cohort:
+      organ: "CRC"
+      dataset: "TCGA"
+
+    deployment_overrides: {}
+
+    # Analyze prediction files after deployment.
+    analyze_predictions: true
+
+    metrics:
+      - auroc
+      - auprc
+      - accuracy
+      - balanced_accuracy
+      - f1
+      - sensitivity
+      - specificity
+      - precision
+      - npv
+
+    visualizations:
+      metrics:
+        - Accuracy
+        - Balanced_Accuracy
+        - F1_macro
+        - AUROC
+        - AUPRC
+        - Sensitivity
+        - Specificity
+
+      patient_probability_plots: true
+
+  
+  stratified_subgroup_performance_analysis:
+    run: true
+    continue_on_error: true
+
+    # Null means use the Step 5 predictions for the current cohort.
+    predictions_root: null
+
+    # Optional alternate clinical table containing subgroup columns.
+    # Null means use data.clinical_table.
+    clinical_table: null
+
+    # Evaluate only trained biomarker targets by default.
+    # Set true to also evaluate models trained to predict bias factors.
+    evaluate_bias_factor_models: false
+
+    # Minimum number of patients required within one subgroup and split.
+    minimum_subgroup_size: 5
+
+    # Null means use all entries under top-level bias_factors.
+    # Names or exact clinical column names may be supplied.
+    bias_factors: null
+
+    # Example restricted selection:
+    #
+    # bias_factors:
+    #   - "Gender"
+    #   - "Race"
+    #   - "Age Group"
+
+    visualizations:
+      metrics:
+        - AUROC
+        - AUPRC
+        - Accuracy
+        - Balanced_Accuracy
+        - F1_macro
+        - Sensitivity
+        - Specificity
+
+      make_starplots: true
+      disparity_plots: true
+
+      starplot_metrics:
+        - AUROC
+        - AUPRC
+        - Accuracy
+        - F1_macro
+        - Sensitivity
+        - Specificity
+
+  comparative_bias_propagation_analysis:
+    run: true
+    continue_on_error: true
+
+    # Null means use Step 5 predictions for the current cohort.
+    predictions_root: null
+
+    # Optional alternate clinical table.
+    # Null means use data.clinical_table.
+    clinical_table: null
+
+    # Subgroups smaller than this are excluded.
+    minimum_group_size: 5
+
+    # Laplace smoothing for subgroup positive rates.
+    laplace_alpha: 1.0
+
+    compute_delta: true
+    make_heatmaps: true
+
+    visualizations:
+      delta_metrics:
+        - Delta_PositiveRateGap_mean
+        - Delta_DI_Distance_mean
