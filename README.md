@@ -223,6 +223,20 @@ Whole-slide images, clinical tables, embeddings, checkpoints, and predictions ar
 
 The seven-step configuration-driven structure is implemented. Documentation, automated tests, continuous integration, packaging metadata, citation information, and licensing should be reviewed together before a formal public release.
 
+## Repository scope
+
+This repository provides the curated research implementation of the Bias
+Analysis Framework. It includes the configuration-driven workflow code,
+example configuration, project documentation, and output guides intended
+for review and reuse.
+
+The repository does not include patient data, whole-slide images, feature
+embeddings, checkpoints, predictions, generated outputs, private
+configuration files, or deprecated development material.
+
+The framework is under active development. Testing, automated validation,
+and workflow documentation will continue to be expanded.
+
 ## Citation
 
 If you use this framework in research, please cite the software using the metadata in [`CITATION.cff`](CITATION.cff).
