@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bias-analysis-framework"
+version = "0.1.0"
+description = "Bias analysis framework for clinical, feature embedding, model prediction, subgroup, and comparative bias evaluation workflows."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "Zoha Rashid", email = "zoha.rashid@tu-dresden.de" },
+]
+
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+]
+
+
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "scikit-learn",
+  "matplotlib",
+  "openpyxl",
+  "PyYAML",
+  "h5py",
+  "umap-learn",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "build",
+]
+
+[project.urls]
+Repository = "https://github.com/Zoha9/bias_analysis_framework"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"

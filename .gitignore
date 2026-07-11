@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments
+.venv/
+venv/
+env/
+/venv
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local configurations
+config.yaml 
+configs/local*.yaml
+configs/*private*.yaml
+.env
+.env.*
+*.token
+
+# Data and computational artifacts
+data/
+outputs/
+results/
+features/
+predictions/
+crossval_results/
+checkpoints/
+logs/
+
+# Ignore temp files
+*.log
+*.tmp
+*.ckpt
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.npy
+*.npz
+
+# Generated tables and archives
+*.xlsx
+*.xls
+*.zip
+*.tar
+*.tar.gz
