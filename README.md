@@ -221,7 +221,9 @@ Whole-slide images, clinical tables, embeddings, checkpoints, and predictions ar
 
 ## Project status
 
-The seven-step configuration-driven structure is implemented. Documentation, automated tests, continuous integration, packaging metadata, citation information, and licensing should be reviewed together before a formal public release.
+The seven-step configuration-driven framework is implemented and available for research review and reuse. 
+The project is under active development. Documentation, automated tests, continuous integration, packaging metadata, and workflow validation will continue to be refined. The framework is intended for research use and has not been validated for clinical decision-making. Interfaces, configuration options, and generated outputs may change in future versions.
+
 
 ## Repository scope
 
