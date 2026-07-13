@@ -45,7 +45,7 @@ The root README provides orientation and a quick start. Shared concepts belong i
 ## Repository structure
 
 ```text
-Bias_Analysis_FW/
+bias_analysis_framework/
 ├── configs/
 │   └── bias_analysis_config.example.yaml
 ├── docs/
@@ -102,7 +102,11 @@ Install and validate STAMP separately before executing STAMP-facing workflows.
 Copy the example configuration:
 
 ```bash
+# Linux/macOS
 cp configs/bias_analysis_config.example.yaml configs/local_config.yaml
+
+# Windows PowerShell
+Copy-Item configs/bias_analysis_config.example.yaml configs/local_config.yaml
 ```
 
 Update project, data, cohort, model, target, bias-factor, and STAMP paths.
@@ -245,4 +249,4 @@ If you use this framework in research, please cite the software using the metada
 
 ## License
 
-This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
+This project is licensed under the MIT License. See [`LICENSE.md`](LICENSE.md).
